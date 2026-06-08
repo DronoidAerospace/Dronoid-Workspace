@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dronoid Aerospace — Internship Workspace</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ec;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#a0a0a0;
+  --border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.2);
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#185FA5;
+  --green-bg:#EAF3DE;--green-text:#3B6D11;
+  --amber-bg:#FAEEDA;--amber-text:#854F0B;
+  --red-bg:#FCEBEB;--red-text:#A32D2D;
+  --gray-bg:#F1EFE8;--gray-text:#5F5E5A;
+  --teal-bg:#E1F5EE;--teal-text:#0F6E56;
+  --radius:8px;--radius-lg:12px;
+  --sidebar:224px;--header:52px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1e1e1c;--bg2:#252523;--bg3:#2c2c2a;
+    --text:#ebebeb;--text2:#a0a0a0;--text3:#555;
+    --border:rgba(255,255,255,.1);--border2:rgba(255,255,255,.2);
+    --blue-bg:#0c2d50;--blue-text:#85B7EB;
+    --green-bg:#1a2e10;--green-text:#97C459;
+    --amber-bg:#3a2800;--amber-text:#EF9F27;
+    --red-bg:#3a1010;--red-text:#F09595;
+    --gray-bg:#2c2c2a;--gray-text:#B4B2A9;
+    --teal-bg:#0a2a20;--teal-text:#5DCAA5;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text);background:var(--bg3)}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:var(--bg3);z-index:900;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--bg);border:0.5px solid var(--border2);border-radius:16px;padding:36px 40px;width:400px;max-width:94vw}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.login-mark{width:38px;height:38px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700}
+.login-name{font-size:16px;font-weight:600}
+.login-sub{font-size:12px;color:var(--text2)}
+.login-title{font-size:20px;font-weight:600;margin-bottom:6px}
+.login-hint{font-size:13px;color:var(--text2);margin-bottom:22px;line-height:1.5}
+.login-err{font-size:12px;color:var(--red-text);background:var(--red-bg);padding:8px 12px;border-radius:6px;margin-top:10px;display:none}
+
+/* ── LOADING ── */
+#loading-screen{position:fixed;inset:0;background:var(--bg);z-index:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.ls-mark{width:44px;height:44px;background:var(--blue);border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700}
+.spinner{width:22px;height:22px;border:2.5px solid var(--blue-bg);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── APP ── */
+.app{display:flex;height:100vh;display:none}
+
+/* Sidebar */
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-logo{padding:14px 16px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0}
+.sb-mark{width:30px;height:30px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.sb-name{font-size:13px;font-weight:600}
+.sb-sub{font-size:11px;color:var(--text2)}
+.sb-section{padding:10px 16px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);margin:1px 6px;transition:all .12s;user-select:none}
+.sb-item:hover{background:var(--bg3);color:var(--text)}
+.sb-item.on{background:var(--blue-bg);color:var(--blue-text);font-weight:500}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sb-badge{margin-left:auto;background:var(--red-bg);color:var(--red-text);font-size:10px;padding:1px 6px;border-radius:10px;font-weight:500}
+.sb-user{padding:12px 14px;border-top:0.5px solid var(--border);margin-top:auto;display:flex;align-items:center;gap:9px}
+.sb-user-info{flex:1;overflow:hidden}
+.sb-user-name{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-role{font-size:10px;color:var(--text3)}
+.logout-btn{background:none;border:none;cursor:pointer;padding:4px;color:var(--text3);display:flex}
+.logout-btn:hover{color:var(--red-text)}
+.logout-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:var(--header);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;background:var(--bg);flex-shrink:0}
+.tb-title{font-size:15px;font-weight:500;flex:1}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:0.5px solid var(--border2);border-radius:6px;background:none;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--bg2)}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary:hover{background:#0C447C}
+.btn.danger{color:var(--red-text);border-color:transparent}
+.btn.danger:hover{background:var(--red-bg);border-color:var(--red-text)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--blue-text);flex-shrink:0}
+
+/* Views */
+.view{display:none}.view.on{display:block}
+.ph{margin-bottom:20px}.ph h1{font-size:20px;font-weight:600;margin-bottom:3px}.ph p{font-size:13px;color:var(--text2)}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--bg2);border-radius:var(--radius);padding:14px 16px}
+.stat-l{font-size:11px;color:var(--text2);margin-bottom:5px}
+.stat-v{font-size:22px;font-weight:600}
+.stat-s{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Card */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:11px;color:var(--text3);font-weight:600;padding:6px 14px;border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.tbl td{padding:10px 14px;border-bottom:0.5px solid var(--border);font-size:13px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--bg2)}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-blue{background:var(--blue-bg);color:var(--blue-text)}
+.b-green{background:var(--green-bg);color:var(--green-text)}
+.b-amber{background:var(--amber-bg);color:var(--amber-text)}
+.b-gray{background:var(--gray-bg);color:var(--gray-text)}
+.b-red{background:var(--red-bg);color:var(--red-text)}
+.b-teal{background:var(--teal-bg);color:var(--teal-text)}
+
+/* Progress */
+.prog{background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;min-width:70px}
+.prog-f{height:100%;border-radius:4px;background:var(--blue);transition:width .3s}
+
+/* Week grid */
+.wgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.wcard{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:border-color .12s}
+.wcard:hover{border-color:var(--border2)}
+.wcard.on{border:1.5px solid var(--blue)}
+.wc-num{font-size:11px;color:var(--text3);margin-bottom:4px}
+.wc-title{font-size:13px;font-weight:500;margin-bottom:8px;line-height:1.4}
+.wc-foot{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+
+/* Tasks */
+.task{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.task:last-child{border-bottom:none}
+.tcheck{width:18px;height:18px;border:1.5px solid var(--border2);border-radius:4px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.tcheck.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.tcheck svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.ttxt{font-size:13px;line-height:1.5}
+.ttxt.done{text-decoration:line-through;color:var(--text3)}
+.tmeta{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Resources */
+.res{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.res:last-child{border-bottom:none}
+.res-ico{width:32px;height:32px;border-radius:7px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.res-ico svg{width:15px;height:15px;stroke:var(--blue-text);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* Two col */
+.twocol{display:grid;grid-template-columns:1fr 320px;gap:16px}
+
+/* Comment */
+.cmnt{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.cmnt:last-child{border-bottom:none}
+.cmnt-name{font-size:12px;font-weight:600}
+.cmnt-time{font-size:11px;color:var(--text3)}
+.cmnt-txt{font-size:13px;color:var(--text2);line-height:1.5;margin-top:3px}
+.cinput-row{display:flex;gap:8px;margin-top:12px}
+.cinput-row input{flex:1;padding:8px 12px;border:0.5px solid var(--border2);border-radius:6px;background:var(--bg);font-size:13px;font-family:inherit;color:var(--text)}
+.cinput-row input:focus{outline:none;border-color:var(--blue)}
+
+/* Dropzone */
+.dropzone{border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;margin-top:14px}
+.dropzone:hover{background:var(--bg2)}
+.dropzone svg{width:26px;height:26px;stroke:var(--text3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
+
+/* Form */
+.fl{display:block;font-size:12px;color:var(--text2);margin:12px 0 4px}
+.fi{width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:6px;background:var(--bg);font-size:13px;font-family:inherit;color:var(--text)}
+.fi:focus{outline:none;border-color:var(--blue)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Modal */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center}
+.mbg.on{display:flex}
+.modal{background:var(--bg);border-radius:var(--radius-lg);border:0.5px solid var(--border);padding:24px;width:500px;max-width:94vw;max-height:88vh;overflow-y:auto}
+.modal-hdr{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.modal-close{cursor:pointer;color:var(--text3);background:none;border:none;font-size:20px;padding:0;font-family:inherit;line-height:1}
+
+/* Customise tabs */
+.cust-tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--bg2);padding:4px;border-radius:8px;width:fit-content}
+.ctab{padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text2);border:none;background:none;font-family:inherit;transition:all .12s}
+.ctab.on{background:var(--bg);color:var(--text);font-weight:500;border:0.5px solid var(--border)}
+.ctab-pane{display:none}.ctab-pane.on{display:block}
+
+/* Edit row */
+.edit-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.edit-row:last-child{border-bottom:none}
+
+/* Sync / Toast */
+#sync-status{font-size:11px;color:var(--text3)}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--bg);border:0.5px solid var(--border2);border-radius:8px;padding:10px 16px;font-size:13px;color:var(--text);z-index:500;display:none;max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+
+/* Empty */
+.empty{text-align:center;padding:36px;color:var(--text3)}
+.empty svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
+.empty p{font-size:13px}
+
+/* Meet bar */
+.meet-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--blue-bg);border-radius:var(--radius);margin-bottom:14px;flex-wrap:wrap}
+.meet-bar svg{width:16px;height:16px;stroke:var(--blue-text);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.meet-bar-label{font-size:13px;color:var(--blue-text);font-weight:500;flex:1}
+
+@media(max-width:720px){
+  .stats{grid-template-columns:1fr 1fr}
+  .wgrid{grid-template-columns:1fr 1fr}
+  .twocol{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-mark">DA</div>
+      <div>
+        <div class="login-name">Dronoid Aerospace</div>
+        <div class="login-sub">Internship Portal</div>
+      </div>
+    </div>
+    <div class="login-title">Sign in</div>
+    <div class="login-hint">Enter your email address. Admins and enrolled students will be recognised automatically.</div>
+    <label class="fl" style="margin-top:0">Email address</label>
+    <input class="fi" id="login-email" type="email" placeholder="yourname@gmail.com" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div style="margin-top:16px">
+      <button class="btn primary" style="width:100%;justify-content:center;padding:9px" onclick="doLogin()">
+        Continue
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LOADING
+═══════════════════════════════════════════ -->
+<div id="loading-screen" style="display:none">
+  <div class="ls-mark">DA</div>
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--text2)" id="load-msg">Loading workspace…</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     APP
+═══════════════════════════════════════════ -->
+<div class="app" id="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">DA</div>
+    <div><div class="sb-name">Dronoid Aerospace</div><div class="sb-sub">Internship Portal</div></div>
+  </div>
+
+  <!-- Admin nav -->
+  <div id="nav-admin" style="display:none">
+    <div class="sb-section">Admin</div>
+    <div class="sb-item on" data-view="dashboard" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard
+    </div>
+    <div class="sb-item" data-view="students" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Students
+      <span class="sb-badge" id="sub-badge" style="display:none">!</span>
+    </div>
+    <div class="sb-item" data-view="tasks" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Weekly tasks
+    </div>
+    <div class="sb-item" data-view="resources" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Library
+    </div>
+    <div class="sb-item" data-view="submissions" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Submissions
+    </div>
+    <div class="sb-item" data-view="admins" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin access
+    </div>
+    <div class="sb-item" data-view="customise" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Customise
+    </div>
+  </div>
+
+  <!-- Student nav -->
+  <div id="nav-student" style="display:none">
+    <div class="sb-section">My workspace</div>
+    <div class="sb-item on" data-view="s-home" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> My plan
+    </div>
+    <div class="sb-item" data-view="s-resources" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Resources
+    </div>
+    <div class="sb-item" data-view="s-submit" onclick="nav(this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Submit work
+    </div>
+  </div>
+
+  <!-- User info footer -->
+  <div class="sb-user">
+    <div class="avatar" id="sb-avatar" style="width:30px;height:30px;font-size:11px">?</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name" id="sb-user-name">Loading…</div>
+      <div class="sb-user-role" id="sb-user-role">—</div>
+    </div>
+    <button class="logout-btn" onclick="logout()" title="Sign out">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">Dashboard</div>
+    <div id="sync-status">Synced</div>
+    <button class="btn" onclick="startMeet()">
+      <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.87v6.26a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg> Meet
+    </button>
+    <button class="btn primary" id="tb-action" onclick="tbAction()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span id="tb-action-label">Add student</span>
+    </button>
+    <div class="avatar" id="tb-avatar">?</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── ADMIN: DASHBOARD ── -->
+    <div class="view on" id="view-dashboard">
+      <div class="ph"><h1>Dashboard</h1><p>Internship overview at a glance</p></div>
+      <div class="stats">
+        <div class="stat"><div class="stat-l">Students</div><div class="stat-v" id="st-students">0</div><div class="stat-s">enrolled</div></div>
+        <div class="stat"><div class="stat-l">Submissions</div><div class="stat-v" id="st-subs">0</div><div class="stat-s">total</div></div>
+        <div class="stat"><div class="stat-l">Pending review</div><div class="stat-v" id="st-pending">0</div><div class="stat-s">awaiting feedback</div></div>
+        <div class="stat"><div class="stat-l">Tracks</div><div class="stat-v" id="st-tracks">0</div><div class="stat-s">active</div></div>
+      </div>
+      <!-- Meet bar -->
+      <div class="meet-bar">
+        <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.87v6.26a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg>
+        <span class="meet-bar-label">Google Meet</span>
+        <button class="btn primary sm" onclick="startMeet()">Start new meeting</button>
+        <input class="fi" id="meet-link-input" placeholder="Or paste existing Meet link…" style="flex:1;min-width:180px;padding:6px 10px"/>
+        <button class="btn sm" onclick="joinMeet()">Join</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Students</div>
+        <table class="tbl"><thead><tr><th>Name</th><th>Track</th><th>Week</th><th>Progress</th><th>Status</th></tr></thead>
+        <tbody id="dash-tbody"></tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Recent submissions</div>
+        <div id="dash-subs"></div>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: STUDENTS ── -->
+    <div class="view" id="view-students">
+      <div class="ph"><h1>Students</h1><p>Manage enrolled students and their tracks</p></div>
+      <button class="btn primary" style="margin-bottom:14px" onclick="openModal('modal-student')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add student
+      </button>
+      <div class="card" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th style="padding-left:20px">Name</th><th>Email</th><th>College</th><th>Track</th><th>Mode</th><th>Status</th><th></th></tr></thead>
+          <tbody id="students-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: TASKS ── -->
+    <div class="view" id="view-tasks">
+      <div class="ph"><h1>Weekly tasks</h1><p>Manage week-by-week work per track</p></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <label style="font-size:13px;color:var(--text2)">Track:</label>
+        <select class="fi" style="width:auto" id="task-track-sel" onchange="renderWeekGrid()"></select>
+      </div>
+      <div class="wgrid" id="admin-wgrid"></div>
+      <div class="card" id="task-detail-card">
+        <div class="card-title" id="task-detail-title">Select a week above</div>
+        <div id="task-detail-body"><div class="empty"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><p>Click a week card</p></div></div>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: LIBRARY ── -->
+    <div class="view" id="view-resources">
+      <div class="ph"><h1>Library</h1><p>Briefs, references, and documents for students</p></div>
+      <button class="btn primary" style="margin-bottom:14px" onclick="openModal('modal-resource')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload resource
+      </button>
+      <div class="card" style="padding:0 20px"><div id="res-list"></div></div>
+    </div>
+
+    <!-- ── ADMIN: SUBMISSIONS ── -->
+    <div class="view" id="view-submissions">
+      <div class="ph"><h1>Submissions</h1><p>Review and grade student deliverables</p></div>
+      <div class="card" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th style="padding-left:20px">Student</th><th>Week</th><th>Link</th><th>Date</th><th>Status</th><th>Update</th></tr></thead>
+          <tbody id="subs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: ADMIN ACCESS ── -->
+    <div class="view" id="view-admins">
+      <div class="ph"><h1>Admin access</h1><p>Control who has full admin privileges in this workspace</p></div>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Admins
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <input class="fi" id="new-admin-email" placeholder="Add admin email address…" style="flex:1" onkeydown="if(event.key==='Enter')addAdmin()"/>
+          <button class="btn primary" onclick="addAdmin()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add admin
+          </button>
+        </div>
+        <div id="admin-list"></div>
+        <p style="font-size:12px;color:var(--text3);margin-top:14px;line-height:1.6">
+          Admins can add/remove students, manage tasks, upload resources, and review submissions. The email must exactly match what the person uses to sign in.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: CUSTOMISE ── -->
+    <div class="view" id="view-customise">
+      <div class="ph"><h1>Customise</h1><p>Edit students, tracks, tasks, and library — all syncs to Google Drive</p></div>
+      <div class="cust-tabs">
+        <button class="ctab on" onclick="custTab(this,'ct-students')">Students</button>
+        <button class="ctab" onclick="custTab(this,'ct-tracks')">Tracks & tasks</button>
+        <button class="ctab" onclick="custTab(this,'ct-lib')">Library</button>
+      </div>
+      <div class="ctab-pane on" id="ct-students">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:13px;font-weight:500">Enrolled students</span>
+          <button class="btn sm primary" onclick="openModal('modal-student')">+ Add</button>
+        </div>
+        <div class="card" style="padding:0 20px"><div id="cust-students"></div></div>
+      </div>
+      <div class="ctab-pane" id="ct-tracks">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:13px;font-weight:500">Tracks</span>
+          <button class="btn sm primary" onclick="openModal('modal-track')">+ Add track</button>
+        </div>
+        <div id="cust-tracks"></div>
+      </div>
+      <div class="ctab-pane" id="ct-lib">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:13px;font-weight:500">Library items</span>
+          <button class="btn sm primary" onclick="openModal('modal-resource')">+ Add</button>
+        </div>
+        <div class="card" style="padding:0 20px"><div id="cust-lib"></div></div>
+      </div>
+    </div>
+
+    <!-- ── STUDENT: HOME ── -->
+    <div class="view" id="view-s-home">
+      <div class="ph"><h1 id="s-greeting">Welcome back</h1><p id="s-subheading">Loading your plan…</p></div>
+      <div class="wgrid" id="s-wgrid"></div>
+      <div class="twocol">
+        <div>
+          <div class="card">
+            <div class="card-title" id="s-week-label">Week 1</div>
+            <div id="s-tasks"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments & questions</div>
+            <div id="s-comments"></div>
+            <div class="cinput-row">
+              <input type="text" id="cmnt-input" placeholder="Ask a question or leave a note…" onkeydown="if(event.key==='Enter')postComment()"/>
+              <button class="btn" onclick="postComment()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-title"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> My progress</div>
+            <div id="s-progress"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Key dates</div>
+            <div id="s-dates"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENT: RESOURCES ── -->
+    <div class="view" id="view-s-resources">
+      <div class="ph"><h1>Resources</h1><p>Documents and references from Dronoid Aerospace</p></div>
+      <div class="card" style="padding:0 20px"><div id="s-res-list"></div></div>
+    </div>
+
+    <!-- ── STUDENT: SUBMIT ── -->
+    <div class="view" id="view-s-submit">
+      <div class="ph"><h1>Submit work</h1><p>Upload your deliverable or paste a Drive / GitHub link</p></div>
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> New submission</div>
+        <label class="fl">Week</label>
+        <select class="fi" id="sub-week-sel"></select>
+        <label class="fl">Drive / GitHub / Notion link *</label>
+        <input class="fi" type="text" id="sub-link" placeholder="https://drive.google.com/…"/>
+        <label class="fl">Notes to mentor (optional)</label>
+        <textarea class="fi" id="sub-notes" rows="3" placeholder="Any context about your submission…" style="resize:vertical"></textarea>
+        <div class="dropzone" onclick="document.getElementById('sub-link').focus()">
+          <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          <p style="font-size:13px;color:var(--text2)">Drop a PDF or click to upload</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:4px">PDF, DOCX, XLSX · max 20 MB</p>
+        </div>
+        <button class="btn primary" style="margin-top:14px;width:100%;justify-content:center" onclick="submitWork()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> My submission history</div>
+        <div id="my-subs"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Add/Edit Student -->
+<div class="mbg" id="modal-student">
+  <div class="modal">
+    <div class="modal-hdr" id="modal-student-title">Add student <button class="modal-close" onclick="closeModal('modal-student')">×</button></div>
+    <div class="frow">
+      <div><label class="fl">Full name *</label><input class="fi" id="ns-name" placeholder="Full name"/></div>
+      <div><label class="fl">Email *</label><input class="fi" id="ns-email" placeholder="email@college.edu"/></div>
+    </div>
+    <div class="frow">
+      <div><label class="fl">College / University</label><input class="fi" id="ns-college" placeholder="College name"/></div>
+      <div><label class="fl">Phone</label><input class="fi" id="ns-phone" placeholder="+91 …"/></div>
+    </div>
+    <label class="fl">Track *</label><select class="fi" id="ns-track"></select>
+    <div class="frow">
+      <div><label class="fl">Availability</label><input class="fi" id="ns-avail" placeholder="e.g. 0–15 hrs/week"/></div>
+      <div><label class="fl">Mode</label>
+        <select class="fi" id="ns-mode"><option>Online only</option><option>Hybrid</option><option>In-person</option></select>
+      </div>
+    </div>
+    <label class="fl">Status</label>
+    <select class="fi" id="ns-status"><option value="active">Active</option><option value="pending">Pending</option><option value="completed">Completed</option></select>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn primary" style="flex:1;justify-content:center" onclick="saveStudent()">Save</button>
+      <button class="btn" onclick="closeModal('modal-student')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Resource -->
+<div class="mbg" id="modal-resource">
+  <div class="modal">
+    <div class="modal-hdr">Add resource <button class="modal-close" onclick="closeModal('modal-resource')">×</button></div>
+    <label class="fl">Title *</label>
+    <input class="fi" id="nr-title" placeholder="e.g. Strata VTOL concept brief v1"/>
+    <div class="frow">
+      <div><label class="fl">Category</label>
+        <select class="fi" id="nr-cat"><option>Brief</option><option>Reference</option><option>Template</option><option>Dataset</option><option>Other</option></select>
+      </div>
+      <div><label class="fl">Visible to</label><select class="fi" id="nr-track"></select></div>
+    </div>
+    <label class="fl">Drive / external link</label>
+    <input class="fi" id="nr-link" placeholder="https://drive.google.com/…"/>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn primary" style="flex:1;justify-content:center" onclick="saveResource()">Save</button>
+      <button class="btn" onclick="closeModal('modal-resource')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Track -->
+<div class="mbg" id="modal-track">
+  <div class="modal">
+    <div class="modal-hdr">Add track <button class="modal-close" onclick="closeModal('modal-track')">×</button></div>
+    <label class="fl">Track name *</label>
+    <input class="fi" id="nt-name" placeholder="e.g. Propulsion & Energy Sizing"/>
+    <label class="fl">Color</label>
+    <select class="fi" id="nt-color"><option value="blue">Blue</option><option value="teal">Teal</option><option value="amber">Amber</option></select>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn primary" style="flex:1;justify-content:center" onclick="saveTrack()">Add track</button>
+      <button class="btn" onclick="closeModal('modal-track')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Task -->
+<div class="mbg" id="modal-task">
+  <div class="modal">
+    <div class="modal-hdr">Add task <button class="modal-close" onclick="closeModal('modal-task')">×</button></div>
+    <input type="hidden" id="nt-track-id"/>
+    <input type="hidden" id="nt-week-idx"/>
+    <label class="fl">Task description *</label>
+    <input class="fi" id="nt-task-text" placeholder="What should the student do?"/>
+    <label class="fl">Note / hint (optional)</label>
+    <input class="fi" id="nt-task-meta" placeholder="e.g. See library for reference doc"/>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn primary" style="flex:1;justify-content:center" onclick="saveTask()">Add task</button>
+      <button class="btn" onclick="closeModal('modal-task')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════
+const DRIVE_IDS = {
+  students:    '1BE5Z4PJAvGTPbSs14UbUdZhv3htQ549Z',
+  tracks:      '1o811al6iXNR4WvKqmzThEIqBXH5SSwmV',
+  library:     '1biyuB5EpnKE9ijXhp3KPkhoERcwNECKD',
+  submissions: '1nPcDJfb8HOw0etMJY-bELgMlIdNZd-ZC',
+  comments:    '1I5EyyVQvrV4mNt9XTYyh4DZ3mjj0lgB4',
+  admins:      '1lAQu2ZJlZe6U9iUipaLeg5wb6RG8LxsE'
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const S = {
+  // session
+  currentUser: null,   // { email, role: 'admin'|'student', name }
+  // data
+  admins: [],
+  students: [],
+  tracks: [],
+  library: [],
+  submissions: [],
+  comments: [],
+  // ui
+  selWeek: 0,
+  editingStudentId: null,
+  studentSubject: null  // student record for current student session
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRIVE I/O  via Anthropic API + MCP
+// ═══════════════════════════════════════════════════════
+async function driveRead(fileId) {
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        system: 'You read Google Drive files. Read the file and return ONLY its raw text/JSON content, nothing else.',
+        messages: [{ role: 'user', content: `Read file ID: ${fileId}. Return only the raw content.` }],
+        mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }]
+      })
+    })
+    const d = await res.json()
+    const mcp = d.content?.filter(b => b.type === 'mcp_tool_result').map(b => b.content?.[0]?.text || '').join('')
+    const txt = d.content?.filter(b => b.type === 'text').map(b => b.text).join('')
+    return mcp || txt || ''
+  } catch { return '' }
+}
+
+async function driveWrite(fileId, content) {
+  try {
+    await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        system: 'You write files to Google Drive. Update the given file with the exact content provided. Return only "done".',
+        messages: [{ role: 'user', content: `Update file ${fileId} with:\n\n${content}` }],
+        mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }]
+      })
+    })
+  } catch (e) { console.warn('Drive write failed', e) }
+}
+
+function tryParse(txt, fallback) {
+  try { const p = JSON.parse(txt.replace(/```json|```/g, '').trim()); return Array.isArray(p) ? p : fallback } catch { return fallback }
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOGIN
+// ═══════════════════════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase()
+  if (!email || !email.includes('@')) { showLoginErr('Please enter a valid email address.'); return }
+
+  showLoading('Checking access…')
+
+  // Load admins list from Drive
+  const adminTxt = await driveRead(DRIVE_IDS.admins)
+  S.admins = tryParse(adminTxt, ['mddaem01@gmail.com'])
+
+  // Load students
+  const studTxt = await driveRead(DRIVE_IDS.students)
+  S.students = tryParse(studTxt, [])
+
+  const isAdmin = S.admins.map(a => a.toLowerCase()).includes(email)
+  const student = S.students.find(s => s.email.toLowerCase() === email)
+
+  if (!isAdmin && !student) {
+    hideLoading()
+    showLoginErr('This email is not registered. Contact your internship coordinator to get access.')
+    return
+  }
+
+  // Load remaining data
+  setLoadMsg('Loading workspace…')
+  const [trackTxt, libTxt, subTxt, cmntTxt] = await Promise.all([
+    driveRead(DRIVE_IDS.tracks),
+    driveRead(DRIVE_IDS.library),
+    driveRead(DRIVE_IDS.submissions),
+    driveRead(DRIVE_IDS.comments)
+  ])
+  S.tracks      = tryParse(trackTxt, [])
+  S.library     = tryParse(libTxt,   [])
+  S.submissions = tryParse(subTxt,   [])
+  S.comments    = tryParse(cmntTxt,  [])
+
+  if (!S.tracks.length) loadDefaultTracks()
+
+  S.currentUser = {
+    email,
+    role: isAdmin ? 'admin' : 'student',
+    name: isAdmin ? email.split('@')[0] : (student?.name || email)
+  }
+  if (!isAdmin) S.studentSubject = student
+
+  // Save session to localStorage
+  localStorage.setItem('dronoid_session', JSON.stringify({ email, ts: Date.now() }))
+
+  bootApp()
+}
+
+function bootApp() {
+  hideLoading()
+  document.getElementById('login-screen').style.display = 'none'
+  document.getElementById('app').style.display = 'flex'
+
+  const u = S.currentUser
+  const initials = u.name.split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')
+  document.getElementById('sb-avatar').textContent = initials
+  document.getElementById('tb-avatar').textContent = initials
+  document.getElementById('sb-user-name').textContent = u.name
+  document.getElementById('sb-user-role').textContent = u.role === 'admin' ? 'Admin' : 'Student — '+shortTrack(S.studentSubject?.track||'')
+
+  document.getElementById('nav-admin').style.display  = u.role === 'admin'   ? 'block' : 'none'
+  document.getElementById('nav-student').style.display= u.role === 'student' ? 'block' : 'none'
+
+  if (u.role === 'admin') {
+    document.getElementById('tb-action-label').textContent = 'Add student'
+    populateSelects()
+    showView('dashboard')
+  } else {
+    document.getElementById('tb-action').style.display = 'none'
+    showView('s-home')
+  }
+}
+
+function logout() {
+  localStorage.removeItem('dronoid_session')
+  S.currentUser = null
+  document.getElementById('app').style.display = 'none'
+  document.getElementById('login-screen').style.display = 'flex'
+  document.getElementById('login-email').value = ''
+  hideLoginErr()
+}
+
+function showLoginErr(msg) { const e=document.getElementById('login-err'); e.textContent=msg; e.style.display='block' }
+function hideLoginErr()    { document.getElementById('login-err').style.display='none' }
+
+// ═══════════════════════════════════════════════════════
+//  SESSION RESTORE
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', async () => {
+  const saved = localStorage.getItem('dronoid_session')
+  if (saved) {
+    try {
+      const { email, ts } = JSON.parse(saved)
+      if (Date.now() - ts < 24 * 60 * 60 * 1000) { // 24h session
+        document.getElementById('login-email').value = email
+        await doLogin()
+        return
+      }
+    } catch {}
+  }
+  // Show login normally
+})
+
+// ═══════════════════════════════════════════════════════
+//  SYNC
+// ═══════════════════════════════════════════════════════
+let syncTimer = null
+function scheduleSave() {
+  clearTimeout(syncTimer)
+  document.getElementById('sync-status').textContent = 'Unsaved…'
+  syncTimer = setTimeout(saveAll, 2000)
+}
+
+async function saveAll() {
+  document.getElementById('sync-status').textContent = 'Saving…'
+  try {
+    await Promise.all([
+      driveWrite(DRIVE_IDS.students,    JSON.stringify(S.students, null, 2)),
+      driveWrite(DRIVE_IDS.tracks,      JSON.stringify(S.tracks, null, 2)),
+      driveWrite(DRIVE_IDS.library,     JSON.stringify(S.library, null, 2)),
+      driveWrite(DRIVE_IDS.submissions, JSON.stringify(S.submissions, null, 2)),
+      driveWrite(DRIVE_IDS.comments,    JSON.stringify(S.comments, null, 2)),
+      driveWrite(DRIVE_IDS.admins,      JSON.stringify(S.admins, null, 2))
+    ])
+    document.getElementById('sync-status').textContent = 'Synced ✓'
+  } catch { document.getElementById('sync-status').textContent = 'Sync failed'; toast('Could not save to Drive', 'warn') }
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function nav(el) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('on'))
+  el.classList.add('on')
+  showView(el.dataset.view)
+}
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('on'))
+  const el = document.getElementById('view-'+v)
+  if (el) el.classList.add('on')
+  const T = {dashboard:'Dashboard',students:'Students',tasks:'Weekly tasks',resources:'Library',
+             submissions:'Submissions',admins:'Admin access',customise:'Customise',
+             's-home':'My workspace','s-resources':'Resources','s-submit':'Submit work'}
+  document.getElementById('tb-title').textContent = T[v] || v
+
+  if (v==='dashboard')   renderDashboard()
+  if (v==='students')    renderStudents()
+  if (v==='tasks')       { populateSelects(); renderWeekGrid() }
+  if (v==='resources')   renderLibrary()
+  if (v==='submissions') renderSubmissions()
+  if (v==='admins')      renderAdmins()
+  if (v==='customise')   renderCustomise()
+  if (v==='s-home')      renderStudentHome()
+  if (v==='s-resources') renderStudentResources()
+  if (v==='s-submit')    renderSubmitPage()
+}
+
+function tbAction() { openModal('modal-student') }
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard() {
+  document.getElementById('st-students').textContent = S.students.length
+  document.getElementById('st-subs').textContent = S.submissions.length
+  const pending = S.submissions.filter(s => s.status === 'submitted').length
+  document.getElementById('st-pending').textContent = pending
+  document.getElementById('st-tracks').textContent = S.tracks.length
+  const badge = document.getElementById('sub-badge')
+  badge.textContent = pending; badge.style.display = pending ? 'inline' : 'none'
+
+  document.getElementById('dash-tbody').innerHTML = S.students.map(s => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar" style="width:24px;height:24px;font-size:10px">${initials(s.name)}</div>
+        <span style="font-weight:500">${s.name}</span>
+      </div></td>
+      <td><span class="badge b-blue" style="font-size:10px">${shortTrack(s.track)}</span></td>
+      <td>Week ${s.week||1}</td>
+      <td><div class="prog"><div class="prog-f" style="width:${calcProgress(s)}%"></div></div></td>
+      <td><span class="badge ${s.status==='active'?'b-green':s.status==='completed'?'b-blue':'b-amber'}">${s.status}</span></td>
+    </tr>`).join('')
+
+  const el = document.getElementById('dash-subs')
+  if (!S.submissions.length) { el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg><p>No submissions yet</p></div>'; return }
+  el.innerHTML = S.submissions.slice().reverse().slice(0,5).map(s => `
+    <div class="res">
+      <div class="res-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div><div style="font-size:13px;font-weight:500">${s.student} — ${s.week}</div>
+        <div style="font-size:11px;color:var(--text2)">${s.date}${s.link?' · <a href="'+s.link+'" target="_blank" style="color:var(--blue-text)">Open</a>':''}</div>
+      </div>
+      <span class="badge ${s.status==='reviewed'?'b-green':s.status==='needs-revision'?'b-amber':'b-blue'}" style="margin-left:auto">${s.status}</span>
+    </div>`).join('')
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: STUDENTS
+// ═══════════════════════════════════════════════════════
+function renderStudents() {
+  document.getElementById('students-tbody').innerHTML = S.students.map(s => `
+    <tr>
+      <td style="padding-left:20px"><div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar" style="width:26px;height:26px;font-size:10px">${initials(s.name)}</div>
+        <div><div style="font-weight:500">${s.name}</div><div style="font-size:11px;color:var(--text3)">${s.phone||''}</div></div>
+      </div></td>
+      <td style="font-size:12px;color:var(--text2)">${s.email}</td>
+      <td style="font-size:12px">${s.college||'—'}</td>
+      <td><span class="badge b-blue" style="font-size:10px">${shortTrack(s.track)}</span></td>
+      <td style="font-size:12px">${s.mode||'—'}</td>
+      <td><span class="badge ${s.status==='active'?'b-green':s.status==='completed'?'b-blue':'b-amber'}">${s.status}</span></td>
+      <td style="padding-right:14px">
+        <div style="display:flex;gap:6px">
+          <button class="btn sm" onclick="editStudent(${s.id})"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn sm danger" onclick="deleteStudent(${s.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+        </div>
+      </td>
+    </tr>`).join('')
+}
+
+function editStudent(id) {
+  const s = S.students.find(x => x.id === id); if (!s) return
+  S.editingStudentId = id
+  populateSelects()
+  document.getElementById('ns-name').value    = s.name
+  document.getElementById('ns-email').value   = s.email
+  document.getElementById('ns-college').value = s.college||''
+  document.getElementById('ns-phone').value   = s.phone||''
+  document.getElementById('ns-track').value   = s.track
+  document.getElementById('ns-avail').value   = s.avail||''
+  document.getElementById('ns-mode').value    = s.mode||'Online only'
+  document.getElementById('ns-status').value  = s.status
+  document.getElementById('modal-student-title').childNodes[0].textContent = 'Edit student '
+  openModal('modal-student')
+}
+
+function deleteStudent(id) {
+  if (!confirm('Remove this student?')) return
+  S.students = S.students.filter(s => s.id !== id)
+  renderStudents(); renderDashboard(); renderCustomise(); scheduleSave(); toast('Student removed')
+}
+
+function saveStudent() {
+  const name = document.getElementById('ns-name').value.trim()
+  if (!name) { alert('Name is required'); return }
+  const data = {
+    name, email: document.getElementById('ns-email').value.trim().toLowerCase(),
+    college: document.getElementById('ns-college').value.trim(),
+    phone:   document.getElementById('ns-phone').value.trim(),
+    track:   document.getElementById('ns-track').value,
+    avail:   document.getElementById('ns-avail').value.trim(),
+    mode:    document.getElementById('ns-mode').value,
+    status:  document.getElementById('ns-status').value, week:1, progress:0
+  }
+  if (S.editingStudentId) {
+    const i = S.students.findIndex(s => s.id === S.editingStudentId)
+    S.students[i] = { ...S.students[i], ...data }
+    toast('Student updated')
+  } else {
+    S.students.push({ id: Date.now(), ...data }); toast('Student added')
+  }
+  S.editingStudentId = null
+  closeModal('modal-student'); renderStudents(); renderDashboard(); renderCustomise(); scheduleSave()
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: TASKS
+// ═══════════════════════════════════════════════════════
+function renderWeekGrid() {
+  const sel = document.getElementById('task-track-sel')
+  if (!sel) return
+  if (!sel.value && S.tracks.length) sel.value = S.tracks[0].id
+  const track = S.tracks.find(t => t.id === sel.value)
+  if (!track) return
+  const grid = document.getElementById('admin-wgrid')
+  grid.innerHTML = track.weeks.map((w,i) => `
+    <div class="wcard ${S.selWeek===i?'on':''}" onclick="selWeek(${i})">
+      <div class="wc-num">Week ${w.num} · ${w.dates}</div>
+      <div class="wc-title">${w.title}</div>
+      <div class="wc-foot">
+        <span class="badge ${w.status==='current'?'b-blue':w.status==='done'?'b-green':'b-gray'}">${w.status}</span>
+        <span>${w.tasks.filter(t=>t.done).length}/${w.tasks.length}</span>
+      </div>
+    </div>`).join('')
+  renderTaskDetail(track, S.selWeek)
+}
+
+function selWeek(i) { S.selWeek=i; renderWeekGrid() }
+
+function renderTaskDetail(track, wi) {
+  const w = track?.weeks[wi]; if (!w) return
+  document.getElementById('task-detail-title').textContent = `Week ${w.num} — ${w.title}`
+  document.getElementById('task-detail-body').innerHTML = w.tasks.map(t => `
+    <div class="task">
+      <div class="tcheck ${t.done?'on':''}" onclick="toggleTask('${track.id}',${wi},${t.id})">
+        ${t.done?'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>':''}
+      </div>
+      <div style="flex:1">
+        <div class="ttxt ${t.done?'done':''}">${t.text}</div>
+        ${t.meta?`<div class="tmeta">${t.meta}</div>`:''}
+      </div>
+      <button class="btn sm danger" onclick="deleteTask('${track.id}',${wi},${t.id})">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('') +
+    `<div style="margin-top:12px">
+       <button class="btn sm" onclick="openAddTask('${track.id}',${wi})">
+         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add task
+       </button>
+     </div>`
+}
+
+function toggleTask(tid, wi, taskId) {
+  const t = S.tracks.find(t=>t.id===tid)?.weeks[wi]?.tasks.find(t=>t.id===taskId)
+  if (t) { t.done=!t.done; renderWeekGrid(); scheduleSave() }
+}
+
+function deleteTask(tid, wi, taskId) {
+  const track = S.tracks.find(t=>t.id===tid); if (!track) return
+  track.weeks[wi].tasks = track.weeks[wi].tasks.filter(t=>t.id!==taskId)
+  renderWeekGrid(); scheduleSave(); toast('Task removed')
+}
+
+function openAddTask(tid, wi) {
+  document.getElementById('nt-track-id').value = tid
+  document.getElementById('nt-week-idx').value = wi
+  document.getElementById('nt-task-text').value = ''
+  document.getElementById('nt-task-meta').value = ''
+  openModal('modal-task')
+}
+
+function saveTask() {
+  const text = document.getElementById('nt-task-text').value.trim(); if (!text) return
+  const track = S.tracks.find(t=>t.id===document.getElementById('nt-track-id').value)
+  const wi = parseInt(document.getElementById('nt-week-idx').value)
+  if (!track) return
+  track.weeks[wi].tasks.push({id:Date.now(), text, meta:document.getElementById('nt-task-meta').value.trim(), done:false})
+  closeModal('modal-task'); renderWeekGrid(); scheduleSave(); toast('Task added')
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: LIBRARY
+// ═══════════════════════════════════════════════════════
+function renderLibrary() {
+  const el = document.getElementById('res-list')
+  if (!S.library.length) { el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><p>No resources yet</p></div>'; return }
+  el.innerHTML = S.library.map(r => `
+    <div class="res">
+      <div class="res-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${r.title}</div>
+        <div style="font-size:11px;color:var(--text2)">${r.cat} · ${r.track==='All'?'All students':shortTrack(r.track)} · ${r.date}</div>
+      </div>
+      ${r.link?`<a href="${r.link}" target="_blank" class="btn sm"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open</a>`:''}
+      <button class="btn sm danger" style="margin-left:6px" onclick="deleteResource(${r.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+    </div>`).join('')
+}
+
+function saveResource() {
+  const title = document.getElementById('nr-title').value.trim(); if (!title) return
+  S.library.push({ id:Date.now(), title, cat:document.getElementById('nr-cat').value,
+    track:document.getElementById('nr-track').value, link:document.getElementById('nr-link').value.trim(),
+    date:new Date().toISOString().slice(0,10) })
+  closeModal('modal-resource')
+  document.getElementById('nr-title').value=''; document.getElementById('nr-link').value=''
+  renderLibrary(); renderCustomise(); scheduleSave(); toast('Resource added')
+}
+
+function deleteResource(id) {
+  if (!confirm('Remove this resource?')) return
+  S.library = S.library.filter(r=>r.id!==id)
+  renderLibrary(); renderCustomise(); scheduleSave(); toast('Resource removed')
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: SUBMISSIONS
+// ═══════════════════════════════════════════════════════
+function renderSubmissions() {
+  const tbody = document.getElementById('subs-tbody')
+  if (!S.submissions.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">No submissions yet</td></tr>'; return }
+  tbody.innerHTML = S.submissions.map((s,i) => `
+    <tr>
+      <td style="padding-left:20px;font-weight:500">${s.student}</td>
+      <td>${s.week}</td>
+      <td style="font-size:12px">${s.link?`<a href="${s.link}" target="_blank" style="color:var(--blue-text)">Open link</a>`:'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${s.date}</td>
+      <td><span class="badge ${s.status==='reviewed'?'b-green':s.status==='needs-revision'?'b-amber':'b-blue'}">${s.status}</span></td>
+      <td style="padding-right:14px">
+        <select class="fi" style="width:auto;padding:4px 8px;font-size:12px" onchange="updateSubStatus(${i},this.value)">
+          <option ${s.status==='submitted'?'selected':''} value="submitted">Submitted</option>
+          <option ${s.status==='reviewed'?'selected':''} value="reviewed">Reviewed ✓</option>
+          <option ${s.status==='needs-revision'?'selected':''} value="needs-revision">Needs revision</option>
+        </select>
+      </td>
+    </tr>`).join('')
+}
+
+function updateSubStatus(i, val) {
+  S.submissions[i].status = val; renderSubmissions(); renderDashboard(); scheduleSave(); toast('Status updated')
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: ADMIN ACCESS MANAGEMENT
+// ═══════════════════════════════════════════════════════
+function renderAdmins() {
+  const el = document.getElementById('admin-list')
+  el.innerHTML = S.admins.map((email,i) => `
+    <div class="edit-row">
+      <div class="avatar" style="width:28px;height:28px;font-size:10px">${email.split('@')[0].slice(0,2).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${email}</div>
+        <div style="font-size:11px;color:var(--text3)">${email === S.currentUser.email ? 'You (current session)' : 'Admin'}</div>
+      </div>
+      ${email !== S.currentUser.email ? `
+        <button class="btn sm danger" onclick="removeAdmin(${i})">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Remove
+        </button>` : `<span class="badge b-green">Active</span>`}
+    </div>`).join('')
+}
+
+function addAdmin() {
+  const email = document.getElementById('new-admin-email').value.trim().toLowerCase()
+  if (!email || !email.includes('@')) { toast('Enter a valid email', 'warn'); return }
+  if (S.admins.map(a=>a.toLowerCase()).includes(email)) { toast('Already an admin', 'warn'); return }
+  S.admins.push(email)
+  document.getElementById('new-admin-email').value = ''
+  renderAdmins(); scheduleSave(); toast(`${email} added as admin`)
+}
+
+function removeAdmin(i) {
+  if (S.admins[i] === S.currentUser.email) { toast("You can't remove yourself", 'warn'); return }
+  if (!confirm(`Remove ${S.admins[i]} as admin?`)) return
+  S.admins.splice(i, 1); renderAdmins(); scheduleSave(); toast('Admin removed')
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN: CUSTOMISE
+// ═══════════════════════════════════════════════════════
+function renderCustomise() {
+  document.getElementById('cust-students').innerHTML = S.students.length
+    ? S.students.map(s => `
+        <div class="edit-row">
+          <div class="avatar" style="width:26px;height:26px;font-size:10px">${initials(s.name)}</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">${s.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${shortTrack(s.track)} · ${s.status}</div>
+          </div>
+          <button class="btn sm" onclick="editStudent(${s.id})"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn sm danger" onclick="deleteStudent(${s.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+        </div>`).join('')
+    : '<div class="empty"><p>No students yet</p></div>'
+
+  document.getElementById('cust-tracks').innerHTML = S.tracks.map(t => `
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:14px;font-weight:600">${t.name}</span>
+        <button class="btn sm danger" onclick="deleteTrack('${t.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Delete</button>
+      </div>
+      ${t.weeks.map((w,wi) => `
+        <div style="margin-bottom:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px">Week ${w.num} · ${w.title}</div>
+          ${w.tasks.map(task => `
+            <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid var(--border)">
+              <div style="width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0"></div>
+              <span style="flex:1;font-size:12px">${task.text}</span>
+              <button class="btn sm danger" style="padding:2px 6px" onclick="deleteTask('${t.id}',${wi},${task.id})">×</button>
+            </div>`).join('')}
+          <button class="btn sm" style="margin-top:6px;font-size:11px" onclick="openAddTask('${t.id}',${wi})">+ task in week ${w.num}</button>
+        </div>`).join('')}
+    </div>`).join('')
+
+  document.getElementById('cust-lib').innerHTML = S.library.length
+    ? S.library.map(r => `
+        <div class="edit-row">
+          <div class="res-ico" style="width:26px;height:26px;border-radius:5px"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">${r.title}</div>
+            <div style="font-size:11px;color:var(--text3)">${r.cat} · ${r.track==='All'?'All':shortTrack(r.track)}</div>
+          </div>
+          <button class="btn sm danger" onclick="deleteResource(${r.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+        </div>`).join('')
+    : '<div class="empty"><p>No resources yet</p></div>'
+}
+
+function custTab(btn, paneId) {
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('on'))
+  document.querySelectorAll('.ctab-pane').forEach(p=>p.classList.remove('on'))
+  btn.classList.add('on'); document.getElementById(paneId).classList.add('on')
+}
+
+function saveTrack() {
+  const name = document.getElementById('nt-name').value.trim(); if (!name) return
+  S.tracks.push({ id:'track-'+Date.now(), name, color:document.getElementById('nt-color').value,
+    weeks:[{num:1,title:'Week 1',dates:'TBD',status:'upcoming',tasks:[]},
+           {num:2,title:'Week 2',dates:'TBD',status:'upcoming',tasks:[]},
+           {num:3,title:'Week 3',dates:'TBD',status:'upcoming',tasks:[]},
+           {num:4,title:'Week 4',dates:'TBD',status:'upcoming',tasks:[]}] })
+  closeModal('modal-track'); populateSelects(); renderCustomise(); scheduleSave(); toast('Track added')
+}
+
+function deleteTrack(tid) {
+  if (!confirm('Delete this track and all its tasks?')) return
+  S.tracks = S.tracks.filter(t=>t.id!==tid)
+  populateSelects(); renderCustomise(); scheduleSave(); toast('Track removed')
+}
+
+// ═══════════════════════════════════════════════════════
+//  STUDENT: HOME
+// ═══════════════════════════════════════════════════════
+function renderStudentHome() {
+  const s = S.studentSubject || S.students[0]; if (!s) return
+  document.getElementById('s-greeting').textContent = 'Welcome back, ' + s.name.split(' ')[0]
+  document.getElementById('s-subheading').textContent = s.track + ' · Week ' + (s.week||1) + ' of 4'
+
+  const track = S.tracks.find(t => t.name === s.track) || S.tracks[0]; if (!track) return
+
+  document.getElementById('s-wgrid').innerHTML = track.weeks.map((w,i) => `
+    <div class="wcard ${S.selWeek===i?'on':''}" onclick="selStudentWeek(${i})">
+      <div class="wc-num">Week ${w.num} · ${w.dates}</div>
+      <div class="wc-title">${w.title}</div>
+      <div class="wc-foot">
+        <span class="badge ${w.status==='current'?'b-blue':w.status==='done'?'b-green':'b-gray'}">${w.status}</span>
+        <span>${w.tasks.filter(t=>t.done).length}/${w.tasks.length}</span>
+      </div>
+    </div>`).join('')
+
+  const cw = track.weeks[S.selWeek] || track.weeks[0]
+  document.getElementById('s-week-label').textContent = `Week ${cw.num} — ${cw.title}`
+  document.getElementById('s-tasks').innerHTML = cw.tasks.map(t => `
+    <div class="task">
+      <div class="tcheck ${t.done?'on':''}" onclick="sToggleTask('${track.id}',${S.selWeek},${t.id})">
+        ${t.done?'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>':''}
+      </div>
+      <div><div class="ttxt ${t.done?'done':''}">${t.text}</div>
+        ${t.meta?`<div class="tmeta">${t.meta}</div>`:''}
+      </div>
+    </div>`).join('')
+
+  const all = track.weeks.flatMap(w=>w.tasks)
+  const done = all.filter(t=>t.done).length
+  const pct = all.length ? Math.round(done/all.length*100) : 0
+  document.getElementById('s-progress').innerHTML = `
+    <div style="margin-bottom:8px"><div class="prog" style="height:9px"><div class="prog-f" style="width:${pct}%"></div></div></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">${done} of ${all.length} tasks complete (${pct}%)</div>
+    ${track.weeks.map(w=>`
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+        <span style="color:var(--text2)">Week ${w.num}</span>
+        <span>${w.tasks.filter(t=>t.done).length}/${w.tasks.length}
+          <span class="badge ${w.status==='current'?'b-blue':w.status==='done'?'b-green':'b-gray'}" style="font-size:10px;margin-left:4px">${w.status}</span>
+        </span>
+      </div>`).join('')}`
+
+  document.getElementById('s-dates').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0">
+      ${[{dot:'#E24B4A',t:'Exams',s:'Jun 16–20 · no deliverables'},{dot:'#E24B4A',t:'Exams',s:'Jul 4–5 · no deliverables'},{dot:'var(--blue)',t:'Final submission',s:'Jul 10 2026'}].map(d=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+          <div style="width:8px;height:8px;border-radius:50%;background:${d.dot};margin-top:4px;flex-shrink:0"></div>
+          <div><div style="font-size:13px;font-weight:500">${d.t}</div><div style="font-size:11px;color:var(--text2)">${d.s}</div></div>
+        </div>`).join('')}
+    </div>`
+
+  renderComments()
+}
+
+function selStudentWeek(i) { S.selWeek=i; renderStudentHome() }
+
+function sToggleTask(tid, wi, taskId) {
+  const t = S.tracks.find(t=>t.id===tid)?.weeks[wi]?.tasks.find(t=>t.id===taskId)
+  if (t) { t.done=!t.done; renderStudentHome(); scheduleSave() }
+}
+
+function renderComments() {
+  const el = document.getElementById('s-comments')
+  if (!S.comments.length) { el.innerHTML='<div class="empty" style="padding:16px"><p>No messages yet</p></div>'; return }
+  el.innerHTML = S.comments.map(c => `
+    <div class="cmnt">
+      <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0">${c.initials||'?'}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="cmnt-name">${c.author}</span><span class="cmnt-time">${c.time}</span>
+        </div>
+        <div class="cmnt-txt">${c.text}</div>
+      </div>
+    </div>`).join('')
+}
+
+function postComment() {
+  const inp = document.getElementById('cmnt-input'), txt = inp.value.trim(); if (!txt) return
+  const u = S.currentUser
+  S.comments.push({ author: u.name, initials: initials(u.name), text: txt,
+    time: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}) })
+  inp.value=''; renderComments(); scheduleSave()
+}
+
+// ═══════════════════════════════════════════════════════
+//  STUDENT: RESOURCES
+// ═══════════════════════════════════════════════════════
+function renderStudentResources() {
+  const s = S.studentSubject || S.students[0]
+  const visible = S.library.filter(r => r.track==='All' || r.track===s?.track)
+  const el = document.getElementById('s-res-list')
+  if (!visible.length) { el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><p>No resources yet</p></div>'; return }
+  el.innerHTML = visible.map(r => `
+    <div class="res">
+      <div class="res-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${r.title}</div>
+        <div style="font-size:11px;color:var(--text2)">${r.cat} · ${r.date}</div>
+      </div>
+      ${r.link?`<a href="${r.link}" target="_blank" class="btn sm">Open <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`
+      :`<span class="badge b-gray">Coming soon</span>`}
+    </div>`).join('')
+}
+
+// ═══════════════════════════════════════════════════════
+//  STUDENT: SUBMIT
+// ═══════════════════════════════════════════════════════
+function renderSubmitPage() {
+  const s = S.studentSubject || S.students[0]
+  const track = S.tracks.find(t=>t.name===s?.track) || S.tracks[0]
+  if (track) document.getElementById('sub-week-sel').innerHTML = track.weeks.map(w=>`<option>Week ${w.num} — ${w.title}</option>`).join('')
+  renderMySubmissions()
+}
+
+function renderMySubmissions() {
+  const s = S.studentSubject || S.students[0]
+  const mine = S.submissions.filter(sub => sub.student === s?.name)
+  const el = document.getElementById('my-subs')
+  if (!mine.length) { el.innerHTML='<div class="empty"><p>No submissions yet</p></div>'; return }
+  el.innerHTML = mine.map(sub => `
+    <div class="res">
+      <div class="res-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+      <div><div style="font-size:13px;font-weight:500">${sub.week}</div>
+        <div style="font-size:11px;color:var(--text2)">${sub.date}${sub.link?' · <a href="'+sub.link+'" target="_blank" style="color:var(--blue-text)">View</a>':''}</div>
+      </div>
+      <span class="badge ${sub.status==='reviewed'?'b-green':sub.status==='needs-revision'?'b-amber':'b-blue'}" style="margin-left:auto">${sub.status}</span>
+    </div>`).join('')
+}
+
+function submitWork() {
+  const link = document.getElementById('sub-link').value.trim()
+  if (!link) { toast('Please paste a link', 'warn'); return }
+  const s = S.studentSubject || S.students[0]
+  S.submissions.push({ id:Date.now(), student:s?.name||'Student',
+    week: document.getElementById('sub-week-sel').value.split('—')[0].trim(),
+    link, notes: document.getElementById('sub-notes').value.trim(),
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}), status:'submitted' })
+  document.getElementById('sub-link').value=''
+  document.getElementById('sub-notes').value=''
+  renderMySubmissions(); scheduleSave(); toast('Submitted! Your mentor will review it soon.')
+}
+
+// ═══════════════════════════════════════════════════════
+//  GOOGLE MEET
+// ═══════════════════════════════════════════════════════
+function startMeet() { window.open('https://meet.google.com/new','_blank') }
+function joinMeet() {
+  const link = document.getElementById('meet-link-input')?.value.trim()
+  if (!link) { toast('Paste a Meet link first','warn'); return }
+  window.open(link.startsWith('http') ? link : 'https://'+link, '_blank')
+}
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+function populateSelects() {
+  const trackOpts = S.tracks.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')
+  const trkSel = document.getElementById('task-track-sel')
+  if (trkSel) { const v=trkSel.value; trkSel.innerHTML=trackOpts; if(v) trkSel.value=v }
+
+  const nst = document.getElementById('ns-track')
+  if (nst) nst.innerHTML = S.tracks.map(t=>`<option value="${t.name}">${t.name}</option>`).join('')
+
+  const nrt = document.getElementById('nr-track')
+  if (nrt) nrt.innerHTML = `<option value="All">All students</option>` +
+    S.tracks.map(t=>`<option value="${t.name}">${t.name}</option>`).join('')
+}
+
+function calcProgress(student) {
+  const track = S.tracks.find(t=>t.name===student.track); if(!track) return 0
+  const all = track.weeks.flatMap(w=>w.tasks)
+  return all.length ? Math.round(all.filter(t=>t.done).length/all.length*100) : 0
+}
+
+function initials(name) {
+  return (name||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')
+}
+
+function shortTrack(name) {
+  if (!name) return '—'
+  const w = name.split(' ')
+  return w.length > 3 ? w.slice(0,3).join(' ')+'…' : name
+}
+
+function openModal(id) {
+  if (id==='modal-student') { populateSelects(); if(!S.editingStudentId) document.getElementById('modal-student-title').childNodes[0].textContent='Add student ' }
+  if (id==='modal-resource') populateSelects()
+  document.getElementById(id).classList.add('on')
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('on'); S.editingStudentId=null }
+document.querySelectorAll('.mbg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on')}))
+
+function toast(msg, type) {
+  const t = document.getElementById('toast')
+  t.textContent=msg; t.style.display='block'
+  t.style.borderColor = type==='warn' ? 'var(--amber-text)' : 'var(--border2)'
+  clearTimeout(t._t); t._t = setTimeout(()=>t.style.display='none', 3500)
+}
+
+function showLoading(msg) {
+  setLoadMsg(msg||'Loading…')
+  document.getElementById('loading-screen').style.display='flex'
+  document.getElementById('login-screen').style.display='none'
+}
+function hideLoading()  { document.getElementById('loading-screen').style.display='none' }
+function setLoadMsg(m)  { document.getElementById('load-msg').textContent = m }
+
+function loadDefaultTracks() {
+  S.tracks = [
+    {id:'track-1',name:'Mission Energy Consumption & Turnaround Modelling',color:'blue',weeks:[
+      {num:1,title:'Industry Research & Air Ambulance Context',dates:'Jun 9–15',status:'current',tasks:[
+        {id:101,text:'Research: Drone/UAM industry overview — key players, segments, value chain',done:false,meta:'Write a 1-page summary in your own words'},
+        {id:102,text:'Research: Air ambulance drones globally — find 3 real examples (Zipline, Volocopter, etc.)',done:false,meta:'Note their payload, range, and key specs'},
+        {id:103,text:'Research: DGCA regulations for BVLOS and medical payload drones in India',done:false,meta:'What approvals are needed, what restrictions exist'},
+        {id:104,text:'Define the mission: Chennai urban air ambulance — distance, payload (~6 kg medical kit), response time',done:false,meta:''},
+        {id:105,text:'Deliverable: 2-page research brief — industry overview + mission definition',done:false,meta:'Submit by Jun 15'}
+      ]},
+      {num:2,title:'VTOL Concept & Energy Model Foundation',dates:'Jun 16–20',status:'upcoming',tasks:[
+        {id:201,text:'Study hybrid VTOL configurations — which suits air ambulance use? Justify in 1 paragraph',done:false,meta:''},
+        {id:202,text:'Set up energy model spreadsheet: 5 flight phases + air ambulance payload column',done:false,meta:'Template in library'},
+        {id:203,text:'Estimate AUW: airframe + battery/fuel + 6 kg medical payload. Assume 15–20 kg AUW',done:false,meta:''},
+        {id:204,text:'Calculate hover power using actuator disk theory for assumed rotor config',done:false,meta:'Reference doc in library'},
+        {id:205,text:'Deliverable: hover + climb rows in Sheet with all assumptions documented',done:false,meta:'Submit by Jun 20'}
+      ]},
+      {num:3,title:'Full Mission Energy + CAD Concept in CATIA',dates:'Jun 21–30',status:'upcoming',tasks:[
+        {id:301,text:'Complete full phase-wise energy table for all 5 flight phases',done:false,meta:'Include turnaround time — battery swap or recharge?'},
+        {id:302,text:'Run 2 payload scenarios: 6 kg kit only vs 10 kg kit + defibrillator',done:false,meta:'How does extra payload affect range and sorties/day?'},
+        {id:303,text:'CATIA: Sketch basic VTOL airframe — top view + side view, 3D model',done:false,meta:'Fuselage pod, rotor arms, landing gear'},
+        {id:304,text:'Label key dimensions: rotor span, fuselage length, payload bay location',done:false,meta:'Include screenshots in your report'},
+        {id:305,text:'Deliverable: Energy scenario table + plots + CATIA screenshots',done:false,meta:'Submit by Jun 30'}
+      ]},
+      {num:4,title:'ANSYS Simulation + Final Report',dates:'Jul 6–10',status:'upcoming',tasks:[
+        {id:401,text:'ANSYS: Structural FEA on one rotor arm under max thrust load',done:false,meta:'Check von Mises stress and tip deflection'},
+        {id:402,text:'ANSYS: Basic CFD airflow simulation around fuselage at cruise speed',done:false,meta:'2D cross-section is fine — estimate drag coefficient'},
+        {id:403,text:'Calculate sorties/day — how many emergency responses can one drone handle?',done:false,meta:'Factor in turnaround, charging, standby time'},
+        {id:404,text:'DGCA compliance checklist for your design — what approvals to fly in Chennai?',done:false,meta:''},
+        {id:405,text:'Final deliverable: 1–2 page report + 5-slide deck',done:false,meta:'Mission, energy model, CAD, simulation, regulatory — submit by Jul 10'}
+      ]}
+    ]},
+    {id:'track-2',name:'Low-Fidelity Flight Dynamics & Simulation',color:'teal',weeks:[
+      {num:1,title:'Industry Research & Air Ambulance Context',dates:'Jun 9–15',status:'current',tasks:[
+        {id:501,text:'Research: Drone/UAM industry overview — key players, medical drones',done:false,meta:'1-page summary'},
+        {id:502,text:'Research: DGCA BVLOS and medical drone regulations in India',done:false,meta:''},
+        {id:503,text:'Study VTOL flight dynamics basics: forces, moments, 6-DOF overview',done:false,meta:'Reference in library'},
+        {id:504,text:'Define simulation mission: 5 km urban air ambulance route',done:false,meta:'Flight phases, speed targets, altitude'},
+        {id:505,text:'Deliverable: Research brief + mission definition',done:false,meta:'Submit by Jun 15'}
+      ]},
+      {num:2,title:'3-DOF Model + Hover Dynamics',dates:'Jun 16–20',status:'upcoming',tasks:[
+        {id:601,text:'Build 3-DOF point mass model in Python or MATLAB',done:false,meta:'Forces: thrust, drag, gravity. State: x, z, velocity'},
+        {id:602,text:'Find thrust required to hover a 15–20 kg AUW aircraft',done:false,meta:''},
+        {id:603,text:'Simulate vertical takeoff to 50 m — plot altitude vs time, thrust vs time',done:false,meta:''},
+        {id:604,text:'Deliverable: Code + plots for hover and takeoff phase',done:false,meta:'Submit by Jun 20'}
+      ]},
+      {num:3,title:'Full Mission Simulation + CAD Sketch',dates:'Jun 21–30',status:'upcoming',tasks:[
+        {id:701,text:'Add cruise phase: hover-to-60 km/h transition with drag model',done:false,meta:''},
+        {id:702,text:'Simulate full 5 km mission: takeoff, climb, cruise, descent, land',done:false,meta:''},
+        {id:703,text:'Generate plots: trajectory, speed profile, thrust/power over mission',done:false,meta:'Week 3 deliverable'},
+        {id:704,text:'CATIA: Basic VTOL airframe layout — top view and side view',done:false,meta:'Rotor arms, fuselage, landing gear'},
+        {id:705,text:'Deliverable: Simulation plots + CATIA screenshots',done:false,meta:'Submit by Jun 30'}
+      ]},
+      {num:4,title:'ANSYS Check + Final Report',dates:'Jul 6–10',status:'upcoming',tasks:[
+        {id:801,text:'ANSYS: Structural FEA on rotor arm under max thrust load',done:false,meta:'Check von Mises stress and tip deflection'},
+        {id:802,text:'Compare simulation energy vs analytical estimate — explain discrepancies',done:false,meta:''},
+        {id:803,text:'DGCA compliance notes for your concept — max 1 page',done:false,meta:''},
+        {id:804,text:'Final deliverable: report + 5-slide summary',done:false,meta:'Dynamics, simulation, CAD, FEA, regulations — submit by Jul 10'}
+      ]}
+    ]}
+  ]
+}
+</script>
+</body>
+</html>
